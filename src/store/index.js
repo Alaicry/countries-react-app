@@ -1,19 +1,27 @@
 import axios from "axios";
-import { createStore, compose, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
-import { rootReducer } from "./rootReducer";
 import * as api from "../config";
+import { configureStore } from "@reduxjs/toolkit";
+import controlsSlice from "../features/controls/controlsSlice";
+import countriesSlice from "../features/countries/countriesSlice";
+import detailsSlice from "../features/details/detailsSlice";
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store = configureStore({
+	reducer: {
+		controls: controlsSlice,
+		countries: countriesSlice,
+		details: detailsSlice,
+	},
+	devTools: true,
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware({
+			thunk: {
+				extraArgument: {
+					client: axios,
+					api,
+				},
+			},
+			serializableCheck: false,
+		}),
+});
 
-export const store = createStore(
-	rootReducer,
-	composeEnhancers(
-		applyMiddleware(
-			thunk.withExtraArgument({
-				client: axios,
-				api,
-			})
-		)
-	)
-);
+export default store;
